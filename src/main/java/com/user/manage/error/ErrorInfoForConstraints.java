@@ -15,12 +15,12 @@ public class ErrorInfoForConstraints {
   static {
     constraintToValidationErrorMapper = new HashMap<>();
 
-    //UNIQUE_KEY_CONSTRAINT_ON_CONTACTLIST_NAME
+    //UNIQUE_KEY_CONSTRAINT_ON_USERNAME
     final ValidationErrorInfo forUK_contactlist = new ValidationErrorInfo();
     forUK_contactlist.addFieldError("username", "username already in use.");
     constraintToValidationErrorMapper.put(UNIQUE_KEY_CONSTRAINT_ON_USERNAME, forUK_contactlist);
 
-    //UNIQUE_KEY_CONSTRAINT_ON_CONTACT
+    //UNIQUE_KEY_CONSTRAINT_ON_EMAIL
     final ValidationErrorInfo forUK_emailInContactList = new ValidationErrorInfo();
     forUK_emailInContactList.addFieldError("email", "email address already in use.");
     constraintToValidationErrorMapper.put(UNIQUE_KEY_CONSTRAINT_ON_EMAIL, forUK_emailInContactList);

@@ -38,7 +38,8 @@ import java.util.List;
   @RequestMapping(method = RequestMethod.POST) public void create(
       @RequestBody() @Valid() final UserRequest userRequest, final Transaction transaction) {
     final UserResponse userResponse = userService.create(userRequest);
-    transaction.setReturnStatus(HttpServletResponse.SC_NO_CONTENT);
+    transaction.setLocationHeader("user/" + userResponse.getId());
+    transaction.setReturnStatus(HttpServletResponse.SC_CREATED);
   }
 
 }
