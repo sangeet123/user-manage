@@ -1,5 +1,6 @@
 package com.user.manage.api;
 
+import activemq.service.Producer;
 import com.user.manage.model.request.UserRequest;
 import com.user.manage.model.response.UserResponse;
 import com.user.manage.model.transaction.Transaction;
@@ -18,6 +19,7 @@ import java.util.List;
  */
 @RestController() @RequestMapping("/user") public class UserApi {
   @Autowired() private UserService userService;
+  @Autowired private Producer producer;
 
   @Secured({
       "ROLE_APP_ADMIN" }) @RequestMapping(method = RequestMethod.GET) public @ResponseBody() List<UserResponse> get(
@@ -40,6 +42,7 @@ import java.util.List;
     final UserResponse userResponse = userService.create(userRequest);
     transaction.setLocationHeader("user/" + userResponse.getId());
     transaction.setReturnStatus(HttpServletResponse.SC_CREATED);
+    producer.send("email:"+userResponse.getEmail());
   }
 
 }

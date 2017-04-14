@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration() @EnableAutoConfiguration(exclude = {
     SecurityAutoConfiguration.class }) @ComponentScan(basePackages = { "security*",
-    "com.user.manage", "exception*", "error*" }) public class UserManagementApp {
+    "com.user.manage", "exception*", "error*","activemq.service*" }) public class UserManagementApp {
 
   public static void main(String[] args) {
     SpringApplication.run(UserManagementApp.class, args);

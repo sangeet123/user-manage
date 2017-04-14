@@ -5,6 +5,7 @@ import com.user.manage.IntegrationTestUtils;
 import io.restassured.response.Response;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
 /**
@@ -24,10 +26,16 @@ import static org.hamcrest.Matchers.*;
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {
         "classpath:sql/drop-schema.sql" }) }) public class PostOnUser
     extends IntegrationTestConfigurer {
+
   private final static String USER_ENTRY_ENDPOINT = "/user";
   private final static String USER_SPECIFIC_ENTRY_ENDPOINT = "/user/{id}";
+  private static String receivedMesg;
 
-  @Test() public void create_a_valid_user() {
+  @JmsListener(destination = "usertest-ms") public void receiveMessage(final String text) {
+    receivedMesg = text;
+  }
+
+  @Test() public void create_a_valid_user() throws InterruptedException {
     Map<String, String> map = new HashMap<>();
     map.put("firstName", "firstName");
     map.put("lastName", "lastName");
@@ -62,6 +70,9 @@ import static org.hamcrest.Matchers.*;
         body("lastName", equalTo("lastName")).
         body("username", equalTo("username")).
         body("email", equalTo("first_last@email.com"));
+
+    Thread.sleep(5000L);
+    assertThat(receivedMesg.equals("email:first_last@email.com")).isTrue();
   }
 
   @Test() public void test_post_with_empty_user_name() throws Exception {
