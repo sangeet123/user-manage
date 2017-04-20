@@ -1,10 +1,14 @@
 package com.user.manage.api;
 
 import activemq.service.Producer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.manage.model.request.UserRequest;
 import com.user.manage.model.response.UserResponse;
 import com.user.manage.model.transaction.Transaction;
 import com.user.manage.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
@@ -20,6 +24,8 @@ import java.util.List;
 @RestController() @RequestMapping("/user") public class UserApi {
   @Autowired() private UserService userService;
   @Autowired private Producer producer;
+  private static ObjectMapper om = new ObjectMapper();
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserApi.class);
 
   @Secured({
       "ROLE_APP_ADMIN" }) @RequestMapping(method = RequestMethod.GET) public @ResponseBody() List<UserResponse> get(
@@ -42,7 +48,13 @@ import java.util.List;
     final UserResponse userResponse = userService.create(userRequest);
     transaction.setLocationHeader("user/" + userResponse.getId());
     transaction.setReturnStatus(HttpServletResponse.SC_CREATED);
-    producer.send("email:"+userResponse.getEmail());
+    try {
+      final String createdUser = om.writeValueAsString(userResponse);
+      producer.send(createdUser);
+    }catch(final JsonProcessingException ex){
+      //This should never happen
+      LOGGER.error("Failed to serilize created user ex{}",ex);
+    }
   }
 
 }
